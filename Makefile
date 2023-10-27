@@ -20,4 +20,4 @@ linux:
 clean:
 	rm -fv $(BINARY_NAME) $(BINARY_NAME).exe
 
-.PHONY: all build windows linux clean
+.PHONY: all build windowsn linux clean
