@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 
@@ -11,7 +9,6 @@ import (
 
 	// "fmt"
 
-	"image"
 	_ "image/png"
 )
 
@@ -22,18 +19,13 @@ const (
 	PlayerWidth  = 18
 	PlayerHeight = 32
 
-	FloorHeight = 33
+	FloorHeight        = 33
+	VirtualFloorHeight = FloorHeight - 5
 )
-
-type Player struct {
-	x int
-	y int
-}
 
 type Game struct {
 	player Player
 }
-
 
 func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
@@ -42,34 +34,26 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
 		g.player.x++
 	}
-	if (ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW)) && TotalHeight-g.player.y-PlayerHeight <= FloorHeight {
+	if (ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW)) && TotalHeight-g.player.y-PlayerHeight <= VirtualFloorHeight {
 		g.player.y--
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
 		g.player.y++
 	}
 
-
 	return nil
 }
 
 func DrawGame(g *Game) *ebiten.Image {
-	file, _ := os.Open("background.png")
-	defer file.Close()
-	img, _, _ := image.Decode(file)
-	sprite := ebiten.NewImageFromImage(img)
-
-
 	image := ebiten.NewImage(TotalWidth, TotalHeight)
 	image.Fill(color.White)
 
 	//floor
 	vector.DrawFilledRect(image, 0, float32(TotalHeight-FloorHeight), float32(TotalWidth), float32(FloorHeight), color.RGBA{255, 0, 0, 255}, false)
 
-	image.DrawImage(sprite, nil)
+	image.DrawImage(&SpriteBackground, nil)
 
-	// character
-	vector.DrawFilledRect(image, float32(g.player.x), float32(g.player.y), PlayerWidth, PlayerHeight, color.Black, false)
+	g.player.Draw(image)
 
 	return image
 }
@@ -86,6 +70,8 @@ func main() {
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("SSIS GAME")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+
+	LoadResources()
 
 	game := &Game{Player{10, 200}}
 	if err := ebiten.RunGame(game); err != nil {

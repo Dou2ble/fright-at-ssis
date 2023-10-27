@@ -4,3 +4,6 @@
 tmp/
 
 go.sum
+
+game
+game.exe
